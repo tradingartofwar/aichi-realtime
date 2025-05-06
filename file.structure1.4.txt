@@ -1,0 +1,76 @@
+/aichi/backend
+├── 📂 audio
+│   ├── greeting.mp3                     
+│   └── response.mp3
+│
+├── 📂 data
+│   └── info.json
+│
+├── 📂 nodes
+│   ├── scheduler.node.js
+│   └── tts.node.js
+│
+├── 📂 mod.calls
+│   ├── gpt4o-mini.js
+│   └── o3-mini.js
+│
+├── 📂 routers
+│   └── senthein.router.js                # Minimal Twilio webhook
+│
+├── 📂 websocket
+│   ├── audio.processor.js
+│   ├── session.manager.js
+│   ├── scheduler.js
+│   ├── tts.handler.js
+│   ├── twilio.websocket.js
+│   └── audio.capture.js                  # 🔥 New: Dedicated continuous audio capture
+│
+├── 📂 services*
+│   ├── notifications.js
+│   ├── speech.to.text.js
+│   └── text.to.speech.js
+│
+├── 📂 utils*
+│   └── audio.buffer.queue.js             # 🔥 New: Queue management utility
+│   |----log.js*
+|   |-----whisper.helper.js
+
+
+├── 📂 ai*
+│   ├── ai.context.js                     
+│   └── ai.router.js                      
+│
+
+
+├── 📂 ngrok
+│   ├── express.log
+│   ├── ngrok.yml
+│   ├── start.tunnels.sh
+│   ├── websocket.log
+
+
+├── 📂 node.server
+│   ├── index.js
+
+├── 📂 vad.server
+│   ├── requirements.txt
+│   ├── vad.server.py
+│   ├── \venv
+
+├── 📂 whisper.server
+│   ├── requirements.txt
+│   ├── whisper.transcribe.py
+│   ├── \venv
+
+├── .env
+├── .gitignore
+├── audio.state.machine.js              #not sure we are still using
+├── audio.state.machine.py            #I think a former test script
+├── authserver.js                  #not sure still using
+├── credentials.json
+├── customers.sqlite
+├── file.structure.1.4.txt
+├── package.json
+└── package-lock.json
+├── READme.md
+├── token.json

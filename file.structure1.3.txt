@@ -1,0 +1,50 @@
+/aichi/backend
+├── 📂 audio
+│   ├── greeting.mp3                      
+│   └── responses/
+│
+├── 📂 data
+│   └── info.json
+│
+├── 📂 nodes
+│   ├── scheduler.node.js
+│   └── tts.node.js
+│
+├── 📂 mod.calls
+│   ├── gpt4o-mini.js
+│   └── o3-mini.js
+│
+├── 📂 routers
+│   └── senthein.router.js                # Minimal Twilio webhook
+│
+├── 📂 websocket
+│   ├── audio.processor.js
+│   ├── session.manager.js
+│   ├── scheduler.js
+│   ├── tts.handler.js
+│   ├── twilio.websocket.js
+│   └── audio.capture.js                  # 🔥 New: Dedicated continuous audio capture
+│
+├── 📂 services
+│   ├── notifications.js
+│   ├── speech.to.text.js
+│   └── text.to.speech.js
+│
+├── 📂 utils
+│   └── audio.buffer.queue.js             # 🔥 New: Queue management utility
+│
+├── 📂 Whisper
+│   └── venv/
+│
+├── 📂 ai
+│   ├── ai.context.js                     
+│   └── ai.router.js                      
+│
+├── whisper_transcribe.py
+├── index.js
+├── authserver.js
+├── credentials.json
+├── customers.sqlite
+├── .env
+├── package.json
+└── package-lock.json

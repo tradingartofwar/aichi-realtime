@@ -1,0 +1,9 @@
+version: "2"
+authtoken: 2rJiTrjLWwpJvtOjymhbJ6Ujw4V_54sZXDJ6tLLKMvH7xwnYt
+tunnels:
+  backend5000:
+    addr: 5000
+    proto: http
+  websocket8080:
+    addr: 8080
+    proto: http
