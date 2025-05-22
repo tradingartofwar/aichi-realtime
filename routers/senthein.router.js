@@ -43,7 +43,7 @@ router.post('/handle-response', async (req, res) => {
     console.log('[User Speech]', userSpeech);
 
     const ctx    = sessions.getContext();
-    const ctxOut = await analyzeContext(userSpeech, ctx);
+    const ctxOut = await analyzeContext(userSpeech, ctx, sessions);
     sessions.updateContext(ctxOut.updatedContext);
 
     const routing = routeDecision(ctxOut);

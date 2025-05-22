@@ -1,14 +1,10 @@
-// websocket/whisper.stream.js — v1.2
-//
-// Opens a persistent WebSocket to the streaming-Whisper server,
-// forwards 20-ms μ-law frames, and calls onFinal(text) whenever
-// a final result arrives.
-//
-// • Uses env var **WHISPER_WS_URL** – falls back to
-//   `ws://localhost:8002`  (matches faster_stt_server.py).
+// websocket/whisper.stream.js — v1.3
+// Adds 300 ms debounce so stt_done fires after *last* final transcript
 
 import WebSocket from 'ws';
 import { log }   from '../utils/log.js';
+
+const FINAL_DEBOUNCE_MS = 300;   // wait this long for another final
 
 export class WhisperStream {
   /**
@@ -16,14 +12,17 @@ export class WhisperStream {
    * @param {object|null}         session   SessionManager for latency marks
    */
   constructor(onFinal, session = null) {
-    this.onFinal = onFinal;
-    this.session = session;
-    this.ws      = null;
+    this.onFinal     = onFinal;
+    this.session     = session;
+    this.ws          = null;
+
+    /* debounce state */
+    this._finalTimer = null;
+    this._pendingTxt = '';
   }
 
   /** open the WS connection */
   async connect() {
-    /* read from .env or default */
     const WS_URL = process.env.WHISPER_WS_URL || 'ws://localhost:8002';
 
     return new Promise((res, rej) => {
@@ -39,16 +38,31 @@ export class WhisperStream {
         try { msg = JSON.parse(buf.toString()); } catch { return; }
 
         if (msg.is_final) {
-          this.session?.mark?.('stt_done');          // latency mark
           const txt = (msg.text || '').trim();
-          log(`[Whisper] ✔ final: "${txt}"`, 'info');
-          if (txt) this.onFinal(txt);
+          if (!txt) return;
+
+          /* accumulate & debounce */
+          this._pendingTxt = this._pendingTxt
+            ? `${this._pendingTxt} ${txt}`.trim()
+            : txt;
+
+          clearTimeout(this._finalTimer);
+          this._finalTimer = setTimeout(() => {
+            /* last final for this turn */
+            this.session?.mark?.('stt_done');
+            log(`[Whisper] ✔ final: "${this._pendingTxt}"`, 'info');
+            this.onFinal(this._pendingTxt);
+
+            /* reset for next turn */
+            this._pendingTxt = '';
+            this._finalTimer = null;
+          }, FINAL_DEBOUNCE_MS);
         }
       });
 
       this.ws.on('error', (e) => {
         log(`[Whisper] WS error ${e.message}`, 'error');
-        rej(e);                                      // fail connect()
+        rej(e);
       });
     });
   }

@@ -1,5 +1,5 @@
-// ================= websocket/twilio.websocket.js =================
-/* v10 – streaming Whisper + latency markers (fixed TTS arg order) */
+/* v11 – per-turn latency marks + filler-clean GPT */
+/* streaming Whisper + latency markers (fixed TTS arg order) */
 import { WebSocketServer } from 'ws';
 import path               from 'path';
 import { fileURLToPath }  from 'url';
@@ -37,6 +37,9 @@ export function setupTwilioWebSocket () {
       if (!text || session.checkDuplicateTranscription(text)) return;
       if (session.getState() !== AudioState.LISTENING) return;
 
+      /* mark STT latency as soon as first final text arrives */
+      session.mark('stt_done');
+
       session.setState(AudioState.PROCESSING);
 
       const ctxOut = await analyzeContext(text, session.getContext(), session);
@@ -45,7 +48,8 @@ export function setupTwilioWebSocket () {
       routeDecision(ctxOut);
 
       session.setState(AudioState.RESPONDING);
-      // FIX: pass only (ws, streamSid, text)
+
+      /* pass only (ws, streamSid, text) */
       await tts.speakViaWebSocket(
         ws,
         session.context.streamSid,
@@ -57,6 +61,9 @@ export function setupTwilioWebSocket () {
       setTimeout(() => {
         session.setState(AudioState.LISTENING);
         session.dumpTimingAndReset();
+
+        /* start next-turn latency baseline */
+        session.mark('ws_start');
       }, 400);
     };
 
@@ -69,7 +76,7 @@ export function setupTwilioWebSocket () {
         callSid  = data.start.callSid;
         session  = getSession(callSid);
 
-        session.mark('ws_start');
+        session.mark('ws_start');             // first turn baseline
         session.startCall(callSid);
         session.setStreamSid(data.streamSid);
 
@@ -77,7 +84,7 @@ export function setupTwilioWebSocket () {
         whisper = new WhisperStream(handleTranscript, session);
         await whisper.connect();
 
-        audioCap.startCapturing(ws, whisper);   // forward μ-law frames
+        audioCap.startCapturing(ws, whisper); // forward μ-law frames
       }
     });
 
